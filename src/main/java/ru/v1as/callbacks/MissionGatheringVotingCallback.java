@@ -15,9 +15,9 @@ import ru.v1as.utils.InlineKeyboardUtils;
  * Created by ivlasishen
  * on 17.04.2017.
  */
-public class MissionVotingCallback extends AbstractCallbackHandler {
+public class MissionGatheringVotingCallback extends AbstractCallbackHandler {
 
-    public MissionVotingCallback(Storage storage, ActionProcessor processor) {
+    public MissionGatheringVotingCallback(Storage storage, ActionProcessor processor) {
         super(GameState.MISSION_VOTING, storage, processor);
     }
 
@@ -37,7 +37,7 @@ public class MissionVotingCallback extends AbstractCallbackHandler {
                 Long chatId = message.getChatId();
                 processor.editMessage(chatId, message.getMessageId(), InlineKeyboardUtils.empty());
                 String missionResult = vote.getVote() ? "утвердить" : "отклонить";
-                processor.sendMessageToChat("Выбор сделан. Набор для миссии:" + missionResult, chatId);
+                processor.sendMessageToChat("Выбор сделан. Набор для миссии: " + missionResult, chatId);
             }
             if (game.getVotes().size() >= game.getUsers().size() - 1) {//TODO
                 task(game, new MissionVotingResultRunnable(game, storage, processor));

@@ -29,6 +29,7 @@ public class CallbackProcessor {
 
     public void handle(Update update) {
         if (!isValid(update)) {
+            System.out.println("This callback is not valid.");
             return;
         }
         String[] data = update.getCallbackQuery().getData().split(":");

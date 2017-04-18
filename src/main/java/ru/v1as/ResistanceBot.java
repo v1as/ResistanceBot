@@ -7,7 +7,7 @@ import ru.v1as.action.ActionProcessor;
 import ru.v1as.callbacks.CallbackProcessor;
 import ru.v1as.callbacks.MissionExecutingCallback;
 import ru.v1as.callbacks.MissionGatheringCallback;
-import ru.v1as.callbacks.MissionVotingCallback;
+import ru.v1as.callbacks.MissionGatheringVotingCallback;
 import ru.v1as.command.ClearAllGames;
 import ru.v1as.command.JoinCommand;
 import ru.v1as.command.StartGameCommand;
@@ -31,7 +31,7 @@ public class ResistanceBot extends TelegramLongPollingCommandBot implements Long
         this.register(new JoinCommand(storage, processor));
         this.register(new ClearAllGames(storage, processor));
         callbackHandler.register(new MissionGatheringCallback(storage, processor));
-        callbackHandler.register(new MissionVotingCallback(storage, processor));
+        callbackHandler.register(new MissionGatheringVotingCallback(storage, processor));
         callbackHandler.register(new MissionExecutingCallback(storage, processor));
     }
 

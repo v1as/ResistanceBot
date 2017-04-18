@@ -34,7 +34,7 @@ public class Storage {
 
     public void registerUserIfNeed(Update update) {
         Message message = update.getMessage();
-        if (message != null) {
+        if (message != null && message.getChat().isUserChat()) {
             User from = message.getFrom();
             Long chatId = message.getChatId();
             userId2ChatId.put(from.getId(), chatId);

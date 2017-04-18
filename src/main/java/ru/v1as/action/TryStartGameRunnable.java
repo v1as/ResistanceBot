@@ -2,15 +2,10 @@ package ru.v1as.action;
 
 import org.joda.time.DateTime;
 import org.telegram.telegrambots.api.objects.User;
-import ru.v1as.model.Constants;
-import ru.v1as.model.Game;
-import ru.v1as.model.Role;
-import ru.v1as.model.Storage;
+import ru.v1as.model.*;
 import ru.v1as.utils.Utils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.v1as.model.GameState.*;
@@ -31,9 +26,6 @@ public class TryStartGameRunnable extends AbstractGameRunnable {
 
     @Override
     void gameRun() {
-        if (!JOINING.equals(this.game.getState())) {
-            return;
-        }
         List<User> users = game.getUsers();
         if (users.size() < 1) {
             game.setState(NOT_STARTED);
@@ -66,4 +58,10 @@ public class TryStartGameRunnable extends AbstractGameRunnable {
             processor.add(Action.task(game, new LeaderChangingRunnable(this), new DateTime()));
         }
     }
+
+    @Override
+    Collection<GameState> getSupportedStates() {
+        return Collections.singleton(JOINING);
+    }
+
 }

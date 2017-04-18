@@ -1,16 +1,18 @@
 package ru.v1as.action;
 
+import com.google.common.collect.Sets;
 import org.telegram.telegrambots.api.objects.User;
 import ru.v1as.model.Game;
+import ru.v1as.model.GameState;
 import ru.v1as.model.Storage;
 import ru.v1as.utils.Utils;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
-import static ru.v1as.model.GameState.MISSION_VOTES_CHECKING;
-import static ru.v1as.model.GameState.SET_LEADER;
+import static ru.v1as.model.GameState.*;
 import static ru.v1as.utils.GameUtils.uEquals;
 
 /**
@@ -29,9 +31,6 @@ public class LeaderChangingRunnable extends AbstractGameRunnable {
 
     @Override
     void gameRun() {
-        if (!check(MISSION_VOTES_CHECKING) && this.game.getLeader() != null) {
-            return;
-        }
         game.setState(SET_LEADER);
         game.setLeaderChanged(game.getLeaderChanged() + 1);
         if (game.getLeaderChanged() == 5) {
@@ -54,4 +53,8 @@ public class LeaderChangingRunnable extends AbstractGameRunnable {
 
     }
 
+    @Override
+    Collection<GameState> getSupportedStates() {
+        return Sets.newHashSet(MISSION_VOTES_CHECKING, ROLES_SETTING);
+    }
 }

@@ -5,6 +5,8 @@ import ru.v1as.model.GameState;
 import ru.v1as.model.MissionVote;
 import ru.v1as.model.Storage;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -23,20 +25,22 @@ public class MissionVotingResultRunnable extends AbstractGameRunnable {
 
     @Override
     void gameRun() {
-        if (!check(GameState.MISSION_VOTING)) {
-            return;
-        }
         game.setState(GameState.MISSION_VOTES_CHECKING);
         long votesYes = game.getVotes().stream().
                 map(MissionVote::getVote).
                 filter(Objects::nonNull).
                 filter(v -> v).count();
-        if (game.usersAmount() >= votesYes * 2) {
+        if (game.usersAmount() < votesYes * 2) {
             this.processor.add(Action.message("Состав миссии утвержден.", game.getChatId()));
             this.processor.add(Action.task(game, new MissionStartRunnable(this)));
         } else {
             this.processor.add(Action.message("Состав миссии не утвержден, идёт смена лидера.", game.getChatId()));
             this.processor.add(Action.task(game, new LeaderChangingRunnable(this)));
         }
+    }
+
+    @Override
+    Collection<GameState> getSupportedStates() {
+        return Collections.singleton(GameState.MISSION_VOTING);
     }
 }

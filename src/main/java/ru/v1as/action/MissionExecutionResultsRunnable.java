@@ -4,6 +4,9 @@ import ru.v1as.model.Game;
 import ru.v1as.model.GameState;
 import ru.v1as.model.Storage;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Created by ivlasishen
  * on 18.04.2017.
@@ -20,21 +23,24 @@ public class MissionExecutionResultsRunnable extends AbstractGameRunnable {
 
     @Override
     void gameRun() {
-        if (!check(GameState.MISSION)) {
-            return;
-        }
+        game.setState(GameState.MISSION_RESULTS);
         long countFails = game.getVotes().stream().filter(v -> v.getVote() != Boolean.TRUE).count();
         if (countFails == 0) {
-            message("Поздравляю! Вы прошли миссию.");
             game.setMissionSucceeded(game.getMissionSucceeded() + 1);
+            message("Поздравляю! Вы прошли миссию.");
         } else {
-            message("Вы провалили миссию. Число заваленых этапов: " + countFails);
             game.setMissionFailed(game.getMissionFailed() + 1);
+            message("Вы провалили миссию. Число заваленых этапов: " + countFails);
         }
         if (game.getMissionSucceeded() == 3 || game.getMissionFailed() == 3) {
             task(new GameFinishedRunnable(this));
         } else {
             task(new MissionGatheringRunnable(this));
         }
+    }
+
+    @Override
+    Collection<GameState> getSupportedStates() {
+        return Collections.singleton(GameState.MISSION);
     }
 }

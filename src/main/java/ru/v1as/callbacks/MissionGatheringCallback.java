@@ -3,15 +3,16 @@ package ru.v1as.callbacks;
 import com.google.common.collect.Maps;
 import org.joda.time.DateTime;
 import org.telegram.telegrambots.api.objects.CallbackQuery;
+import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.User;
+import ru.v1as.action.Action;
+import ru.v1as.action.ActionProcessor;
+import ru.v1as.action.MissionVotingRunnable;
 import ru.v1as.model.Game;
 import ru.v1as.model.GameState;
 import ru.v1as.model.Storage;
-import ru.v1as.action.Action;
-import ru.v1as.action.ActionProcessor;
-import ru.v1as.action.MissionGatheringRunnable;
-import ru.v1as.action.MissionVotingRunnable;
 import ru.v1as.utils.GameUtils;
+import ru.v1as.utils.InlineKeyboardUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -33,9 +34,10 @@ public class MissionGatheringCallback extends AbstractCallbackHandler {
         if (update.getFrom().getId().equals(game.getLeader().getId())) {
             Map<String, User> id2User = Maps.uniqueIndex(game.getUsers(), u -> u.getId().toString());
             List<User> missionUsers = game.getMissionUsers();
-
+            Message message = update.getMessage();
             if (data.equals(DONE)) {
                 if (GameUtils.getPeopleInMission(game) == missionUsers.size()) {
+                    processor.editMessage(message.getChatId(), message.getMessageId(), InlineKeyboardUtils.empty()); //todo task
                     processor.add(Action.task(game, new MissionVotingRunnable(game, storage, processor), new DateTime()));
                 }
             } else {
@@ -50,7 +52,7 @@ public class MissionGatheringCallback extends AbstractCallbackHandler {
                         missionUsers.add(newUser);
                     }
                 }
-                processor.add(Action.task(game, new MissionGatheringRunnable(game, storage, processor), new DateTime()));
+                processor.editMessage(message.getChatId(), message.getMessageId(), InlineKeyboardUtils.missionUsers(game));
             }
         }
     }

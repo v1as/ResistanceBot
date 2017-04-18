@@ -10,6 +10,9 @@ import ru.v1as.model.Storage;
 import ru.v1as.utils.InlineKeyboardUtils;
 import ru.v1as.utils.Utils;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Created by ivlasishen
  * on 17.04.2017.
@@ -26,9 +29,6 @@ public class MissionVotingRunnable extends AbstractGameRunnable {
 
     @Override
     void gameRun() {
-        if (!check(GameState.MISSION_GATHERING)) {
-            return;
-        }
         game.setState(GameState.MISSION_VOTING);
         game.clearVoter();
         InlineKeyboardMarkup votingKeyboard = InlineKeyboardUtils.missionVoting(game);
@@ -43,5 +43,10 @@ public class MissionVotingRunnable extends AbstractGameRunnable {
             game.addVoter(new MissionVote(user, message));
 //            }
         }
+    }
+
+    @Override
+    Collection<GameState> getSupportedStates() {
+        return Collections.singleton(GameState.MISSION_GATHERING);
     }
 }

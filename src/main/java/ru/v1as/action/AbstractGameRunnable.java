@@ -33,9 +33,15 @@ public abstract class AbstractGameRunnable extends AbstractGameService implement
 
     @Override
     public void run() {
+        String runnable = this.getClass().getSimpleName();
         synchronized (game) {
             if (storage.containGame(game)) {
-                System.out.println(String.format("Executing for game %s runnable: %s", game.getId(), this.getClass().getSimpleName()) );
+                if (getSupportedStates() != null && !getSupportedStates().contains(game.getState())) {
+                    System.out.println(String.format("This runnable %s does not support this state %s for game %s",
+                            runnable, game.getState(), game.getId()));
+                    return;
+                }
+                System.out.println(String.format("Executing for game %s runnable: %s", game.getId(), runnable));
                 gameRun();
             }
         }
@@ -65,7 +71,8 @@ public abstract class AbstractGameRunnable extends AbstractGameService implement
         return this.game.getState().equals(gameState);
     }
 
-    abstract Collection<>
-
+    Collection<GameState> getSupportedStates() {
+        return null;
+    }
 
 }
