@@ -9,9 +9,9 @@ import ru.v1as.utils.Utils;
  * Created by ivlasishen
  * on 18.04.2017.
  */
-public class GameFinishedRunnable extends AbstractGameRunnable {
+public class GameFinishedRunnable extends AbstractSessionRunnable<Game> {
 
-    public GameFinishedRunnable(AbstractGameRunnable that) {
+    public GameFinishedRunnable(AbstractSessionRunnable that) {
         super(that);
     }
 
@@ -21,21 +21,21 @@ public class GameFinishedRunnable extends AbstractGameRunnable {
 
     @Override
     void gameRun() {
-        if (game.getLeaderChanged() == 5) {
+        if (session.getLeaderChanged() == 5) {
             message("Лидер был сменен в пятый раз. Игра закончилась - победили шпионы!");
-            game.setState(GameState.FINISHED);
+            session.setState(GameState.FINISHED);
         }
-        if (game.getMissionSucceeded() == 3) {
+        if (session.getMissionSucceeded() == 3) {
             message("Игра закончена - сопротивленцы победили!");
-            game.setState(GameState.FINISHED);
+            session.setState(GameState.FINISHED);
         }
-        if (game.getMissionFailed() == 3) {
+        if (session.getMissionFailed() == 3) {
             message("Игра закончена - шпионы победили!");
-            game.setState(GameState.FINISHED);
+            session.setState(GameState.FINISHED);
         }
         if (check(GameState.FINISHED)) {
-            message("роли: " + Utils.getRoles(game));
-            storage.deleteGame(game);
+            message("роли: " + Utils.getRoles(session));
+            storage.deleteSession(session);
         }
     }
 }

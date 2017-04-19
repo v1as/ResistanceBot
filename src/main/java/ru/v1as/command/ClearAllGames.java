@@ -20,7 +20,7 @@ public class ClearAllGames extends AbstractBotCommand {
     @Override
     void executeUnsafe(AbsSender absSender, User user, Chat chat, String[] arguments) throws TelegramApiException {
         synchronized (this) {
-            storage.clearGames();
+            storage.clearSessions();
         }
     }
 }

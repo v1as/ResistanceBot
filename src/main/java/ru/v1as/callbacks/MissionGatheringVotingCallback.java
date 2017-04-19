@@ -11,11 +11,13 @@ import ru.v1as.model.MissionVote;
 import ru.v1as.model.Storage;
 import ru.v1as.utils.InlineKeyboardUtils;
 
+import static ru.v1as.utils.GameUtils.uEquals;
+
 /**
  * Created by ivlasishen
  * on 17.04.2017.
  */
-public class MissionGatheringVotingCallback extends AbstractCallbackHandler {
+public class MissionGatheringVotingCallback extends AbstractCallbackHandler<Game> {
 
     public MissionGatheringVotingCallback(Storage storage, ActionProcessor processor) {
         super(GameState.MISSION_VOTING, storage, processor);
@@ -24,7 +26,7 @@ public class MissionGatheringVotingCallback extends AbstractCallbackHandler {
     @Override
     public void handle(CallbackQuery update, Game game, String datum) {
         User from = update.getFrom();
-        if (//todo !uEquals(from, game.getLeader()) &&
+        if (uEquals(from, game.getLeader()) &&
                 game.getUsersId().contains(from.getId())) {
             MissionVote vote = null;
             if (InlineKeyboardUtils.YES.equals(datum)) {
@@ -33,11 +35,11 @@ public class MissionGatheringVotingCallback extends AbstractCallbackHandler {
                 vote = game.setVote(from, false);
             }
             if (vote != null) {
-                Message message = vote.getMessage();
+                Message message = update.getMessage();
                 Long chatId = message.getChatId();
-                processor.editMessage(chatId, message.getMessageId(), InlineKeyboardUtils.empty());
+                editKeyboard(chatId, message.getMessageId(), InlineKeyboardUtils.empty());
                 String missionResult = vote.getVote() ? "утвердить" : "отклонить";
-                processor.sendMessageToChat("Выбор сделан. Набор для миссии: " + missionResult, chatId);
+                message(chatId, "Выбор сделан. Набор для миссии: " + missionResult);
             }
             if (game.getVotes().size() >= game.getUsers().size() - 1) {//TODO
                 task(game, new MissionVotingResultRunnable(game, storage, processor));

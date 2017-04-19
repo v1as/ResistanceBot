@@ -3,10 +3,10 @@ package ru.v1as.action;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import org.joda.time.DateTime;
-import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
-import ru.v1as.model.Game;
+import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
+import ru.v1as.model.Session;
 
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by ivlasishen
@@ -14,14 +14,17 @@ import java.util.Objects;
  */
 public class Action {
 
+    private List<String> ids;
     private DateTime date;
     private Runnable task;
     private Long chatId;
     private String messageText;
-    private ReplyKeyboard keyboard;
+    private InlineKeyboardMarkup keyboard;
     private ActionType type;
+    private Integer messageId;
 
     private Action() {
+        this.ids = Collections.singletonList(UUID.randomUUID().toString());
     }
 
     public static Action message(String text, Long chatId) {
@@ -37,7 +40,7 @@ public class Action {
         return result;
     }
 
-    public static Action message(String text, Long chatId, ReplyKeyboard keyboard, DateTime date) {
+    public static Action message(String text, Long chatId, InlineKeyboardMarkup keyboard, DateTime date) {
         Action result = new Action();
         result.messageText = text;
         result.chatId = chatId;
@@ -47,10 +50,20 @@ public class Action {
         return result;
     }
 
-    public static Action task(Game game, Runnable runnable, DateTime date) {
+    public static Action editKeyboard(Integer messageId, Long chatId, InlineKeyboardMarkup keyboard, DateTime date) {
+        Action result = new Action();
+        result.messageId = messageId;
+        result.chatId = chatId;
+        result.date = date;
+        result.keyboard = keyboard;
+        result.type = ActionType.KeyboardEdit;
+        return result;
+    }
+
+    public static Action task(Session session, Runnable runnable, DateTime date) {
         Action result = new Action();
         result.task = () -> {
-            synchronized (game) {
+            synchronized (session) {
                 try {
                     runnable.run();
                 } catch (Exception e) {
@@ -63,14 +76,27 @@ public class Action {
         return result;
     }
 
-    public static Action task(Game game, Runnable runnable) {
-        return task(game, runnable, new DateTime());
+    public static Action task(Session session, Runnable runnable) {
+        return task(session, runnable, new DateTime());
     }
 
     public static Action merge(Action t, Action t1) {
         Preconditions.checkArgument(t.isMessage() && t1.isMessage());
         Preconditions.checkArgument(Objects.equals(t.chatId, t1.chatId));
-        return Action.message(Joiner.on("\n\n").join(t.getMessageText(), t1.getMessageText()), t.getChatId());
+        Action message = Action.message(Joiner.on("\n\n").join(t.getMessageText(), t1.getMessageText()), t.getChatId());
+        ArrayList<String> ids = new ArrayList<>();
+        ids.addAll(t.getIds());
+        ids.addAll(t1.getIds());
+        message.setIds(ids);
+        return message;
+    }
+
+    public List<String> getIds() {
+        return ids;
+    }
+
+    public void setIds(List<String> ids) {
+        this.ids = ids;
     }
 
     public DateTime getDate() {
@@ -93,6 +119,10 @@ public class Action {
         return ActionType.Message.equals(type);
     }
 
+    public boolean isKeyboardEditing() {
+        return ActionType.KeyboardEdit.equals(type);
+    }
+
     public boolean isTask() {
         return ActionType.Task.equals(type);
     }
@@ -101,7 +131,15 @@ public class Action {
         return !date.isAfter(now);
     }
 
-    public ReplyKeyboard getKeyboard() {
+    public InlineKeyboardMarkup getKeyboard() {
         return keyboard;
+    }
+
+    public Integer getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(Integer messageId) {
+        this.messageId = messageId;
     }
 }

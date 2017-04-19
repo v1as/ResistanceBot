@@ -11,21 +11,21 @@ import java.util.Map;
  * Created by ivlasishen
  * on 14.04.2017.
  */
-public class Storage {
+public class Storage<SessionImpl extends Session> {
 
-    private static Map<Long, Game> games = new HashMap<>();
-    private static Map<Integer, Long> userId2ChatId = new HashMap<>();
+    private Map<Long, SessionImpl> sessions = new HashMap<>();
+    private Map<Integer, Long> userId2ChatId = new HashMap<>();
 
-    public Game game(Long chatId) {
-        return games.get(chatId);
+    public SessionImpl session(Long chatId) {
+        return sessions.get(chatId);
     }
 
-    public boolean hasGame(Long chatId) {
-        return games.containsKey(chatId);
+    public boolean hasSession(Long chatId) {
+        return sessions.containsKey(chatId);
     }
 
-    public void addGame(Long chatId, Game newGame) {
-        games.put(chatId, newGame);
+    public void addSession(Long chatId, SessionImpl newGame) {
+        sessions.put(chatId, newGame);
     }
 
     public boolean knownUser(User user) {
@@ -45,32 +45,32 @@ public class Storage {
         return userId2ChatId.get(user.getId());
     }
 
-    public boolean containGame(Game game) {
-        return games.values().contains(game);
+    public boolean containSession(SessionImpl game) {
+        return sessions.values().contains(game);
     }
 
-    public void deleteGame(Game game) {
-        Map.Entry<Long, Game> entry = games.entrySet().stream().
-                filter(e -> e.getValue() == game).
+    public void deleteSession(SessionImpl session) {
+        Map.Entry<Long, SessionImpl> entry = sessions.entrySet().stream().
+                filter(e -> e.getValue() == session).
                 findAny().orElse(null);
         if (null != entry) {
-            games.remove(entry.getKey());
+            sessions.remove(entry.getKey());
         }
     }
 
-    public boolean containGame(String gameId) {
-        return games.values().stream().
-                filter(g -> g.getId().equals(gameId)).
+    public boolean containSession(Object sessionId) {
+        return sessions.values().stream().
+                filter(g -> g.getId().equals(sessionId)).
                 findAny().orElse(null) != null;
     }
 
-    public Game game(String gameId) {
-        return games.values().stream().
-                filter(g -> g.getId().equals(gameId)).
+    public SessionImpl session(Object sessionId) {
+        return sessions.values().stream().
+                filter(g -> g.getId().equals(sessionId)).
                 findAny().orElse(null);
     }
 
-    public void clearGames() {
-        this.games.clear();
+    public void clearSessions() {
+        this.sessions.clear();
     }
 }

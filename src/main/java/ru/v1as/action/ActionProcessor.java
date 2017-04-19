@@ -7,12 +7,13 @@ import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.bots.AbsSender;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
  */
 public class ActionProcessor {
 
+    public static final int MAX_MESSAGE_IN_SECOND = 30;
     private final AbsSender sender;
     private List<Action> actions = new CopyOnWriteArrayList<>();
     private Executor executor = Executors.newFixedThreadPool(5);
@@ -47,32 +49,57 @@ public class ActionProcessor {
                 return;
             }
             List<Action> toProcess = actions.stream().filter(a -> a.ready(now)).collect(Collectors.toList());
-            toProcess.stream().filter(Action::isTask).forEach(a -> executor.execute(a.getTask()));
-            toProcess.stream().
-                    filter(Action::isMessage).
-                    collect(
-                            Collectors.groupingBy(Action::getChatId,
-                                    Collectors.reducing(Action::merge)))
-                    .values().stream().map(Optional::get).
-                    forEach(this::process);
-            actions.removeAll(toProcess);
+            toProcess.stream().filter(Action::isTask).forEach(a -> {
+                executor.execute(a.getTask());
+                actions.remove(a);
+            });
+            List<Action> toProcessNow = new ArrayList<>();
+            toProcessNow.addAll(toProcess.stream().filter(Action::isKeyboardEditing).collect(Collectors.toList()));
+            toProcessNow.addAll(mergeMessages(toProcess));
+            toProcessNow = toProcessNow.stream().limit(MAX_MESSAGE_IN_SECOND).collect(Collectors.toList());
+            toProcessNow.forEach(this::process);
+            Set<String> toRemoveIds = toProcessNow.stream().
+                    flatMap(a -> a.getIds().stream()).
+                    collect(Collectors.toSet());
+            List<Action> toDelete = actions.stream().
+                    filter(a -> toRemoveIds.contains(a.getIds().get(0))).
+                    collect(Collectors.toList());
+            actions.removeAll(toDelete);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    protected List<Action> mergeMessages(List<Action> toProcess) {
+        return toProcess.stream().
+                filter(Action::isMessage).
+                collect(
+                        Collectors.groupingBy(Action::getChatId,
+                                Collectors.reducing(Action::merge)))
+                .values().stream().map(Optional::get).collect(Collectors.toList());
+    }
+
     private void process(Action action) {
-        Preconditions.checkArgument(action.isMessage());
-        Preconditions.checkNotNull(action.getMessageText());
-        Preconditions.checkNotNull(action.getChatId());
-        executor.execute(() -> sendMessageToChat(action.getMessageText(), action.getChatId(), action.getKeyboard()));
+        try {
+            Preconditions.checkNotNull(action.getChatId());
+            if (action.isMessage()) {
+                Preconditions.checkNotNull(action.getMessageText());
+                executor.execute(() -> sendMessageToChat(action.getMessageText(), action.getChatId(), action.getKeyboard()));
+            } else {
+                Preconditions.checkNotNull(action.getKeyboard());
+                Preconditions.checkNotNull(action.getMessageId());
+                executor.execute(() -> editMessage(action.getChatId(), action.getMessageId(), action.getKeyboard()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public Message sendMessageToChat(String text, Long chatId) {
         return sendMessageToChat(text, chatId, null);
     }
 
-    public Message sendMessageToChat(String text, Long chatId, ReplyKeyboard keyboard) {
+    public Message sendMessageToChat(String text, Long chatId, InlineKeyboardMarkup keyboard) {
         SendMessage request = new SendMessage();
         request.setChatId(chatId);
         if (keyboard != null) {

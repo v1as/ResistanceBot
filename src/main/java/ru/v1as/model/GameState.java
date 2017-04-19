@@ -4,7 +4,7 @@ package ru.v1as.model;
  * Created by ivlasishen
  * on 13.04.2017.
  */
-public enum GameState {
+public enum GameState implements SessionState {
     NOT_STARTED,
     JOINING,
     ROLES_SETTING,

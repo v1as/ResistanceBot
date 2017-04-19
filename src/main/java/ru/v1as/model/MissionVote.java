@@ -13,12 +13,10 @@ import java.util.Objects;
 public class MissionVote {
 
     private final User user;
-    private final Message message;
     private Boolean vote;
 
-    public MissionVote(User user, Message message) {
+    public MissionVote(User user) {
         this.user = Preconditions.checkNotNull(user);
-        this.message = message;
     }
 
     @Override
@@ -41,11 +39,6 @@ public class MissionVote {
 
     public User getUser() {
         return user;
-    }
-
-
-    public Message getMessage() {
-        return message;
     }
 
     public Boolean getVote() {

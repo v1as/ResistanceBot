@@ -2,7 +2,7 @@ package ru.v1as.utils;
 
 import org.telegram.telegrambots.api.methods.ParseMode;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 /**
  * Created by ivlasishen
@@ -14,7 +14,7 @@ public class MessageUtils {
         return message(chatId, text, null);
     }
 
-    public static SendMessage message(Long chatId, String text, ReplyKeyboard keyboard) {
+    public static SendMessage message(Long chatId, String text, InlineKeyboardMarkup keyboard) {
         SendMessage request = new SendMessage();
         request.setChatId(chatId);
         if (keyboard != null) {

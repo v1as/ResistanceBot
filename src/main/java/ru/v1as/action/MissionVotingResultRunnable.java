@@ -13,29 +13,29 @@ import java.util.Objects;
  * Created by ivlasishen
  * on 17.04.2017.
  */
-public class MissionVotingResultRunnable extends AbstractGameRunnable {
+public class MissionVotingResultRunnable extends AbstractSessionRunnable<Game> {
 
     public MissionVotingResultRunnable(Game game, Storage storage, ActionProcessor processor) {
         super(game, storage, processor);
     }
 
-    public MissionVotingResultRunnable(AbstractGameRunnable that) {
+    public MissionVotingResultRunnable(AbstractSessionRunnable that) {
         super(that);
     }
 
     @Override
     void gameRun() {
-        game.setState(GameState.MISSION_VOTES_CHECKING);
-        long votesYes = game.getVotes().stream().
+        session.setState(GameState.MISSION_VOTES_CHECKING);
+        long votesYes = session.getVotes().stream().
                 map(MissionVote::getVote).
                 filter(Objects::nonNull).
                 filter(v -> v).count();
-        if (game.usersAmount() < votesYes * 2) {
-            this.processor.add(Action.message("Состав миссии утвержден.", game.getChatId()));
-            this.processor.add(Action.task(game, new MissionStartRunnable(this)));
+        if (session.usersAmount() < votesYes * 2) {
+            message(session.getChatId(), "Состав миссии утвержден.");
+            task(new MissionStartRunnable(this));
         } else {
-            this.processor.add(Action.message("Состав миссии не утвержден, идёт смена лидера.", game.getChatId()));
-            this.processor.add(Action.task(game, new LeaderChangingRunnable(this)));
+            message(session.getChatId(), "Состав миссии не утвержден, идёт смена лидера.");
+            task(new LeaderChangingRunnable(this));
         }
     }
 

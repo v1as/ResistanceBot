@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * Created by ivlasishen
  * on 13.04.2017.
  */
-public class Game {
+public class Game implements GroupSession {
 
     public static final String NOT_IN_GAME = "Этот пользователь не в игре";
     private final String id;
@@ -168,4 +168,5 @@ public class Game {
     public void setLeaderChanged(int leaderChanged) {
         this.leaderChanged = leaderChanged;
     }
+
 }

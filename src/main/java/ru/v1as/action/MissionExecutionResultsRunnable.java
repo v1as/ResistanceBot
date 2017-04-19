@@ -11,9 +11,9 @@ import java.util.Collections;
  * Created by ivlasishen
  * on 18.04.2017.
  */
-public class MissionExecutionResultsRunnable extends AbstractGameRunnable {
+public class MissionExecutionResultsRunnable extends AbstractSessionRunnable<Game> {
 
-    public MissionExecutionResultsRunnable(AbstractGameRunnable that) {
+    public MissionExecutionResultsRunnable(AbstractSessionRunnable that) {
         super(that);
     }
 
@@ -23,16 +23,16 @@ public class MissionExecutionResultsRunnable extends AbstractGameRunnable {
 
     @Override
     void gameRun() {
-        game.setState(GameState.MISSION_RESULTS);
-        long countFails = game.getVotes().stream().filter(v -> v.getVote() != Boolean.TRUE).count();
+        session.setState(GameState.MISSION_RESULTS);
+        long countFails = session.getVotes().stream().filter(v -> v.getVote() != Boolean.TRUE).count();
         if (countFails == 0) {
-            game.setMissionSucceeded(game.getMissionSucceeded() + 1);
+            session.setMissionSucceeded(session.getMissionSucceeded() + 1);
             message("Поздравляю! Вы прошли миссию.");
         } else {
-            game.setMissionFailed(game.getMissionFailed() + 1);
+            session.setMissionFailed(session.getMissionFailed() + 1);
             message("Вы провалили миссию. Число заваленых этапов: " + countFails);
         }
-        if (game.getMissionSucceeded() == 3 || game.getMissionFailed() == 3) {
+        if (session.getMissionSucceeded() == 3 || session.getMissionFailed() == 3) {
             task(new GameFinishedRunnable(this));
         } else {
             task(new MissionGatheringRunnable(this));

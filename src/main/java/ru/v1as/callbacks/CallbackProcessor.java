@@ -3,8 +3,8 @@ package ru.v1as.callbacks;
 import org.telegram.telegrambots.api.objects.CallbackQuery;
 import org.telegram.telegrambots.api.objects.Update;
 import ru.v1as.action.ActionProcessor;
-import ru.v1as.model.Game;
-import ru.v1as.model.GameState;
+import ru.v1as.model.Session;
+import ru.v1as.model.SessionState;
 import ru.v1as.model.Storage;
 import ru.v1as.utils.Utils;
 
@@ -15,13 +15,13 @@ import java.util.Map;
  * Created by ivlasishen
  * on 14.04.2017.
  */
-public class CallbackProcessor {
+public class CallbackProcessor<SessionImpl extends Session> {
 
-    private final Storage storage;
+    private final Storage<SessionImpl> storage;
     private final ActionProcessor processor;
-    private final Map<GameState, AbstractCallbackHandler> handlers;
+    private final Map<SessionState, AbstractCallbackHandler<SessionImpl>> handlers;
 
-    public CallbackProcessor(Storage storage, ActionProcessor processor) {
+    public CallbackProcessor(Storage<SessionImpl> storage, ActionProcessor processor) {
         this.storage = storage;
         this.processor = processor;
         this.handlers = new HashMap<>();
@@ -33,16 +33,16 @@ public class CallbackProcessor {
             return;
         }
         String[] data = update.getCallbackQuery().getData().split(":");
-        Game game = storage.game(data[0]);
-        if (game != null) {
-            synchronized (game) {
-                AbstractCallbackHandler handler = handlers.get(game.getState());
+        SessionImpl session = storage.session(data[0]);
+        if (session != null) {
+            synchronized (session) {
+                AbstractCallbackHandler<SessionImpl> handler = handlers.get(session.getState());
                 String from = Utils.user(update.getCallbackQuery().getFrom());
                 String handlerName = handler != null ? handler.getClass().getSimpleName() : "null";
-                System.out.println(String.format("Game %s handled by user %s execute %s with data %s",
-                        game.getId(), from, handlerName, data[1]));
+                System.out.println(String.format("Callback %s by user %s for game %s with data %s",
+                        handlerName, from, session.getId(), data[1]));
                 if (handler != null) {
-                    handler.handle(update.getCallbackQuery(), game, data[1]);
+                    handler.handle(update.getCallbackQuery(), session, data[1]);
                 }
             }
         }
@@ -54,7 +54,7 @@ public class CallbackProcessor {
         if (result) {
             String data = callback.getData();
             String[] split = data.split(":");
-            result = split.length == 2 && storage.containGame(split[0]);
+            result = split.length == 2 && storage.containSession(split[0]);
         }
         return result;
     }

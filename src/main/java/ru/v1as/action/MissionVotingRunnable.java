@@ -1,6 +1,5 @@
 package ru.v1as.action;
 
-import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.v1as.model.Game;
@@ -13,13 +12,15 @@ import ru.v1as.utils.Utils;
 import java.util.Collection;
 import java.util.Collections;
 
+import static ru.v1as.utils.GameUtils.uEquals;
+
 /**
  * Created by ivlasishen
  * on 17.04.2017.
  */
-public class MissionVotingRunnable extends AbstractGameRunnable {
+public class MissionVotingRunnable extends AbstractSessionRunnable<Game> {
 
-    public MissionVotingRunnable(AbstractGameRunnable that) {
+    public MissionVotingRunnable(AbstractSessionRunnable that) {
         super(that);
     }
 
@@ -29,19 +30,19 @@ public class MissionVotingRunnable extends AbstractGameRunnable {
 
     @Override
     void gameRun() {
-        game.setState(GameState.MISSION_VOTING);
-        game.clearVoter();
-        InlineKeyboardMarkup votingKeyboard = InlineKeyboardUtils.missionVoting(game);
+        session.setState(GameState.MISSION_VOTING);
+        session.clearVoter();
+        InlineKeyboardMarkup votingKeyboard = InlineKeyboardUtils.missionVoting(session);
         String messageText = "Лидер решил, что на миссию идут: ";
-        for (User user : game.getMissionUsers()) {
+        for (User user : session.getMissionUsers()) {
             messageText += Utils.user(user) + "\n";
         }
         messageText += "Утвердить набор?";
-        for (User user : game.getUsers()) {
-//            if (!user.getId().equals(game.getLeader().getId())) { //todo
-            Message message = processor.sendMessageToChat(messageText, storage.getUserChat(user), votingKeyboard);
-            game.addVoter(new MissionVote(user, message));
-//            }
+        for (User user : session.getUsers()) {
+            if (!uEquals(user, session.getLeader())) {
+                message(messageText, votingKeyboard, user);
+                session.addVoter(new MissionVote(user));
+            }
         }
     }
 

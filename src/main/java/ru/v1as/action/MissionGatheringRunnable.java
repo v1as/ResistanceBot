@@ -15,9 +15,9 @@ import static ru.v1as.model.GameState.*;
  * Created by ivlasishen
  * on 14.04.2017.
  */
-public class MissionGatheringRunnable extends AbstractGameRunnable {
+public class MissionGatheringRunnable extends AbstractSessionRunnable<Game> {
 
-    public MissionGatheringRunnable(AbstractGameRunnable that) {
+    public MissionGatheringRunnable(AbstractSessionRunnable that) {
         super(that);
     }
 
@@ -27,10 +27,10 @@ public class MissionGatheringRunnable extends AbstractGameRunnable {
 
     @Override
     void gameRun() {
-        game.setState(MISSION_GATHERING);
-        game.getMissionUsers().clear();
-        Long leaderChatId = storage.getUserChat(game.getLeader());
-        InlineKeyboardMarkup keyboard = InlineKeyboardUtils.missionUsers(game);
+        session.setState(MISSION_GATHERING);
+        session.getMissionUsers().clear();
+        Long leaderChatId = storage.getUserChat(session.getLeader());
+        InlineKeyboardMarkup keyboard = InlineKeyboardUtils.missionUsers(session);
         processor.sendMessageToChat("Выбери кого ты хочешь взять на миссию:", leaderChatId, keyboard);
     }
 

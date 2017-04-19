@@ -1,11 +1,9 @@
 package ru.v1as.callbacks;
 
 import com.google.common.collect.Maps;
-import org.joda.time.DateTime;
 import org.telegram.telegrambots.api.objects.CallbackQuery;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.User;
-import ru.v1as.action.Action;
 import ru.v1as.action.ActionProcessor;
 import ru.v1as.action.MissionVotingRunnable;
 import ru.v1as.model.Game;
@@ -23,7 +21,7 @@ import static ru.v1as.utils.InlineKeyboardUtils.DONE;
  * Created by ivlasishen
  * on 14.04.2017.
  */
-public class MissionGatheringCallback extends AbstractCallbackHandler {
+public class MissionGatheringCallback extends AbstractCallbackHandler<Game> {
 
     public MissionGatheringCallback(Storage storage, ActionProcessor processor) {
         super(GameState.MISSION_GATHERING, storage, processor);
@@ -37,8 +35,8 @@ public class MissionGatheringCallback extends AbstractCallbackHandler {
             Message message = update.getMessage();
             if (data.equals(DONE)) {
                 if (GameUtils.getPeopleInMission(game) == missionUsers.size()) {
-                    processor.editMessage(message.getChatId(), message.getMessageId(), InlineKeyboardUtils.empty()); //todo task
-                    processor.add(Action.task(game, new MissionVotingRunnable(game, storage, processor), new DateTime()));
+                    editKeyboard(message.getChatId(), message.getMessageId(), InlineKeyboardUtils.empty());
+                    task(game, new MissionVotingRunnable(game, storage, processor));
                 }
             } else {
                 User newUser = id2User.get(data);
@@ -52,7 +50,7 @@ public class MissionGatheringCallback extends AbstractCallbackHandler {
                         missionUsers.add(newUser);
                     }
                 }
-                processor.editMessage(message.getChatId(), message.getMessageId(), InlineKeyboardUtils.missionUsers(game));
+                editKeyboard(message.getChatId(), message.getMessageId(), InlineKeyboardUtils.missionUsers(game));
             }
         }
     }

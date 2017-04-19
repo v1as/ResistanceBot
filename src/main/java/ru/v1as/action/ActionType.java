@@ -5,5 +5,5 @@ package ru.v1as.action;
  * on 17.04.2017.
  */
 public enum  ActionType {
-    Message, Task,
+    Message, Task, KeyboardEdit
 }

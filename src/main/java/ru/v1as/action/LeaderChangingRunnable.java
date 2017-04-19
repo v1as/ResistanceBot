@@ -19,9 +19,9 @@ import static ru.v1as.utils.GameUtils.uEquals;
  * Created by ivlasishen
  * on 17.04.2017.
  */
-public class LeaderChangingRunnable extends AbstractGameRunnable {
+public class LeaderChangingRunnable extends AbstractSessionRunnable<Game> {
 
-    public LeaderChangingRunnable(AbstractGameRunnable that) {
+    public LeaderChangingRunnable(AbstractSessionRunnable that) {
         super(that);
     }
 
@@ -31,23 +31,23 @@ public class LeaderChangingRunnable extends AbstractGameRunnable {
 
     @Override
     void gameRun() {
-        game.setState(SET_LEADER);
-        game.setLeaderChanged(game.getLeaderChanged() + 1);
-        if (game.getLeaderChanged() == 5) {
+        session.setState(SET_LEADER);
+        session.setLeaderChanged(session.getLeaderChanged() + 1);
+        if (session.getLeaderChanged() == 5) {
             task(new GameFinishedRunnable(this));
             return;
         }
-        List<User> users = game.getUsers();
+        List<User> users = session.getUsers();
         int index;
-        if (game.getLeader() == null) {
+        if (session.getLeader() == null) {
             index = (int) (users.size() * Math.random());
         } else {
             index = IntStream.range(0, users.size()).
-                    filter(u -> uEquals(game.getLeader(), users.get(u))).findFirst().orElse(0);
+                    filter(u -> uEquals(session.getLeader(), users.get(u))).findFirst().orElse(0);
             index = ++index % users.size();
         }
         User leader = users.get(index);
-        game.setLeader(leader);
+        session.setLeader(leader);
         message(format("Лидером назначается: %s", Utils.user(leader)));
         task(new MissionGatheringRunnable(this));
 

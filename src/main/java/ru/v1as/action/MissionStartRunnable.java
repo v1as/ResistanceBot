@@ -1,6 +1,5 @@
 package ru.v1as.action;
 
-import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.v1as.model.Game;
@@ -19,9 +18,9 @@ import static ru.v1as.model.GameState.MISSION_VOTES_CHECKING;
  * Created by ivlasishen
  * on 17.04.2017.
  */
-public class MissionStartRunnable extends AbstractGameRunnable {
+public class MissionStartRunnable extends AbstractSessionRunnable<Game> {
 
-    public MissionStartRunnable(AbstractGameRunnable that) {
+    public MissionStartRunnable(AbstractSessionRunnable that) {
         super(that);
     }
 
@@ -31,13 +30,13 @@ public class MissionStartRunnable extends AbstractGameRunnable {
 
     @Override
     void gameRun() {
-        game.setState(MISSION);
-        game.clearVoter();
-        InlineKeyboardMarkup keyboard = InlineKeyboardUtils.missionExecuting(game);
-        for (User user : game.getMissionUsers()) {
+        session.setState(MISSION);
+        session.clearVoter();
+        InlineKeyboardMarkup keyboard = InlineKeyboardUtils.missionExecuting(session);
+        for (User user : session.getMissionUsers()) {
             String messageText = "Пройти или завалить миссию?";
-            Message message = processor.sendMessageToChat(messageText, storage.getUserChat(user), keyboard);
-            game.addVoter(new MissionVote(user, message));
+            message(messageText, keyboard, user);
+            session.addVoter(new MissionVote(user));
         }
     }
 

@@ -4,7 +4,7 @@ import emoji4j.Emoji;
 import emoji4j.EmojiUtils;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.v1as.model.Game;
 
@@ -28,12 +28,12 @@ public class InlineKeyboardUtils {
     public static final String SUCCESS = "Пройти";
     public static final String FAIL = "Завалить";
 
-    public static ReplyKeyboard replyKeyboard(String[][] buttons) {
+    public static InlineKeyboardMarkup replyKeyboard(String[][] buttons) {
         List<List<InlineKeyboardButton>> inlineButtons = KeyboardUtils.getInlineKeyboardRows(buttons);
         return wrap(inlineButtons);
     }
 
-    public static ReplyKeyboard replyButtonUrl(String button, String url) {
+    public static InlineKeyboardMarkup replyButtonUrl(String button, String url) {
         InlineKeyboardButton o = new InlineKeyboardButton();
         o.setText(button);
         o.setUrl(url);

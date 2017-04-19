@@ -1,6 +1,6 @@
 package ru.v1as.callbacks;
 
-import ru.v1as.model.GameState;
+import ru.v1as.model.SessionState;
 
 /**
  * Created by ivlasishen
@@ -8,5 +8,6 @@ import ru.v1as.model.GameState;
  */
 public interface CallbackHandler {
 
-    GameState getGameState();
+    SessionState getGameState();
+
 }

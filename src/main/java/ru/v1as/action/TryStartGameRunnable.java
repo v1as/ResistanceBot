@@ -14,9 +14,9 @@ import static ru.v1as.model.GameState.*;
  * Created by ivlasishen
  * on 14.04.2017.
  */
-public class TryStartGameRunnable extends AbstractGameRunnable {
+public class TryStartGameRunnable extends AbstractSessionRunnable<Game> {
 
-    public TryStartGameRunnable(AbstractGameRunnable that) {
+    public TryStartGameRunnable(AbstractSessionRunnable that) {
         super(that);
     }
 
@@ -26,36 +26,36 @@ public class TryStartGameRunnable extends AbstractGameRunnable {
 
     @Override
     void gameRun() {
-        List<User> users = game.getUsers();
+        List<User> users = session.getUsers();
         if (users.size() < 1) {
-            game.setState(NOT_STARTED);
-            processor.add(Action.message("Мало людей", game.getChatId()));
-            storage.deleteGame(game);
+            session.setState(NOT_STARTED);
+            message(session.getChatId(), "Мало людей");
+            storage.deleteSession(session);
         } else {
-            processor.add(Action.message("Игра начинается!", game.getChatId()));
-            game.setState(ROLES_SETTING);
-            Integer spiesAmount = Constants.USERS_2_SPY.get(game.getUsers().size());
-            game.getUsers().forEach(u -> game.getRoles().put(u, Role.Resistance));
+            message(session.getChatId(), "Игра начинается!");
+            session.setState(ROLES_SETTING);
+            Integer spiesAmount = Constants.USERS_2_SPY.get(session.getUsers().size());
+            session.getUsers().forEach(u -> session.getRoles().put(u, Role.Resistance));
             Set<User> spies = new HashSet<>();
             for (int i = 0; i < spiesAmount; i++) {
                 User user;
                 do {
                     user = users.get((int) (Math.random() * users.size()));
                 } while (spies.contains(user));
-                game.getRoles().put(user, Role.Spy);
+                session.getRoles().put(user, Role.Spy);
                 spies.add(user);
             }
             String spyList = "Шпионы: " + spies.stream().map(Utils::user).collect(Collectors.joining("\n"));
-            for (User user : game.getUsers()) {
-                Role role = game.getRoles().get(user);
+            for (User user : session.getUsers()) {
+                Role role = session.getRoles().get(user);
                 String text = "Твоя роль: " + role + " \n";
                 if (Role.Spy.equals(role)) {
                     text += spyList;
                 }
-                processor.add(Action.message(text, storage.getUserChat(user)));
-                game.getRoles().put(user, role);
+                message(user, text);
+                session.getRoles().put(user, role);
             }
-            processor.add(Action.task(game, new LeaderChangingRunnable(this), new DateTime()));
+            task(new LeaderChangingRunnable(this), new DateTime());
         }
     }
 
