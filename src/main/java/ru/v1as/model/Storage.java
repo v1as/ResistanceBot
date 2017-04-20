@@ -73,4 +73,12 @@ public class Storage<SessionImpl extends Session> {
     public void clearSessions() {
         this.sessions.clear();
     }
+
+    public Map<Long, SessionImpl> getSessions() {
+        return sessions;
+    }
+
+    public Map<Integer, Long> getUserId2ChatId() {
+        return userId2ChatId;
+    }
 }

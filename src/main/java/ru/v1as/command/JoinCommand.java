@@ -17,9 +17,9 @@ import static ru.v1as.utils.Utils.user;
  * Created by ivlasishen
  * on 14.04.2017.
  */
-public class JoinCommand extends AbstractBotCommand<GroupSession> {
+public class JoinCommand<GroupSessionImpl extends GroupSession> extends AbstractBotCommand<GroupSessionImpl> {
 
-    public JoinCommand(Storage<GroupSession> storage, ActionProcessor processor) {
+    public JoinCommand(Storage<GroupSessionImpl> storage, ActionProcessor processor) {
         super(storage, processor, "/join", "Присоединиться к игре");
     }
 

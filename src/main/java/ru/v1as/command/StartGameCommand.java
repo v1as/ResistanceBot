@@ -19,11 +19,12 @@ import static ru.v1as.utils.Utils.support;
  */
 public class StartGameCommand extends AbstractBotCommand<Game> {
 
-    private JoinCommand joinCommand;
+    public static final String START_GAME = "/startgame";
+    private JoinCommand<Game> joinCommand;
 
-    public StartGameCommand(Storage storage, ActionProcessor processor) {
-        super(storage, processor, "/startgame", "start new session");
-        joinCommand = new JoinCommand(storage, processor);
+    public StartGameCommand(Storage<Game> storage, ActionProcessor processor) {
+        super(storage, processor, START_GAME, "start new session");
+        joinCommand = new JoinCommand<>(storage, processor);
 
     }
 

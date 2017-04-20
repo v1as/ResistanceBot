@@ -3,6 +3,7 @@ package ru.v1as;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
+import ru.v1as.action.ActionProcessor;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,7 +19,9 @@ public class ResistanceMain {
         System.out.println("Bot starting");
         ApiContextInitializer.init();
         TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
-        ResistanceBot bot = new ResistanceBot();
+        ActionProcessor processor = new ActionProcessor();
+        ResistanceBot bot = new ResistanceBot(processor);
+        processor.setSender(bot);
         telegramBotsApi.registerBot(bot);
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         executor.scheduleAtFixedRate(bot::processActions, 0, 1, TimeUnit.SECONDS);

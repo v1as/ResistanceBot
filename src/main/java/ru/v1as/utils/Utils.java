@@ -12,16 +12,21 @@ import java.util.stream.Collectors;
  * on 13.04.2017.
  */
 public class Utils {
+
     public static String user(User user) {
-        return user.getFirstName() + " " + user.getLastName();
+        String names;
+        if (user.getFirstName() != null) {
+            names = user.getFirstName() + " " + user.getLastName();
+        } else if (user.getUserName() != null) {
+            names = user.getUserName();
+        } else {
+            names = String.valueOf(user.getId());
+        }
+        return names;
     }
 
     public static boolean support(Chat chat) {
         return chat != null && (chat.isGroupChat() || chat.isSuperGroupChat());
-    }
-
-    public static boolean messageCheck(String constant, String message) {
-        return constant.equals(message) || (constant + "@" + Constants.MY_NICK).equals(message);
     }
 
     public static String getRoles(Game game) {
@@ -29,4 +34,5 @@ public class Utils {
                 map(e -> user(e.getKey()) + ":" + e.getValue().toString()).
                 collect(Collectors.joining("\n"));
     }
+
 }

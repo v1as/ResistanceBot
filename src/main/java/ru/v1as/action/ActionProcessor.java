@@ -26,12 +26,11 @@ import java.util.stream.Collectors;
 public class ActionProcessor {
 
     public static final int MAX_MESSAGE_IN_SECOND = 30;
-    private final AbsSender sender;
+    private AbsSender sender;
     private List<Action> actions = new CopyOnWriteArrayList<>();
     private Executor executor = Executors.newFixedThreadPool(5);
 
-    public ActionProcessor(AbsSender sender) {
-        this.sender = sender;
+    public ActionProcessor() {
     }
 
     public void addAll(List<Action> actions) {
@@ -126,5 +125,9 @@ public class ActionProcessor {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setSender(AbsSender sender) {
+        this.sender = sender;
     }
 }
