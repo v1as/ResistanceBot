@@ -48,6 +48,7 @@ public class ResistanceBot extends TelegramLongPollingBot implements LongPolling
 
     @Override
     public final void onUpdateReceived(Update update) {
+        storage.registerUserIfNeed(update);
         if (update.hasMessage()) {
             Message message = update.getMessage();
             if (message.isCommand()) {
@@ -60,7 +61,6 @@ public class ResistanceBot extends TelegramLongPollingBot implements LongPolling
     }
 
     public void processNonCommandUpdate(Update update) {
-        storage.registerUserIfNeed(update);
         callbackHandler.handle(update);
     }
 

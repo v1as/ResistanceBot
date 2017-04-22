@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -43,11 +44,10 @@ public class ActionProcessor {
 
     public void processActions() {
         try {
-            DateTime now = new DateTime();
             if (actions.size() == 0) {
                 return;
             }
-            List<Action> toProcess = actions.stream().filter(a -> a.ready(now)).collect(Collectors.toList());
+            List<Action> toProcess = actions.stream().filter(filterReadyMessage()).collect(Collectors.toList());
             toProcess.stream().filter(Action::isTask).forEach(a -> {
                 executor.execute(a.getTask());
                 actions.remove(a);
@@ -67,6 +67,10 @@ public class ActionProcessor {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private Predicate<Action> filterReadyMessage() {
+        return a -> a.ready(DateTime.now());
     }
 
     protected List<Action> mergeMessages(List<Action> toProcess) {

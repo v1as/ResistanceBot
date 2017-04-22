@@ -46,8 +46,8 @@ public class StartGameCommand extends AbstractBotCommand<Game> {
     }
 
     private void addStartingActions(Game game) {
-        message(game.getChatId(), "До начала игры минута!", new DateTime().plusSeconds(5));
-        message(game.getChatId(), "До начала игры 30 секунд!", new DateTime().plusSeconds(10));
+        message(game.getChatId(), "Скоро игра начнется!", new DateTime().plusSeconds(5));
+        message(game.getChatId(), "Игра почти началась, осталось совсем чуть-чуть!", new DateTime().plusSeconds(10));
         task(game, new TryStartGameRunnable(game, storage, processor), new DateTime().plusSeconds(15));
     }
 

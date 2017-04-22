@@ -27,7 +27,7 @@ public class TryStartGameRunnable extends AbstractSessionRunnable<Game> {
     @Override
     void gameRun() {
         List<User> users = session.getUsers();
-        if (users.size() < 1) {
+        if (users.size() < 2) {//todo 5
             session.setState(NOT_STARTED);
             message(session.getChatId(), "Мало людей");
             storage.deleteSession(session);

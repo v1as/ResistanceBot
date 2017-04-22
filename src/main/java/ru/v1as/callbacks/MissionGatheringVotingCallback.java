@@ -26,7 +26,7 @@ public class MissionGatheringVotingCallback extends AbstractCallbackHandler<Game
     @Override
     public void handle(CallbackQuery update, Game game, String datum) {
         User from = update.getFrom();
-        if (uEquals(from, game.getLeader()) &&
+        if (!uEquals(from, game.getLeader()) &&
                 game.getUsersId().contains(from.getId())) {
             MissionVote vote = null;
             if (InlineKeyboardUtils.YES.equals(datum)) {

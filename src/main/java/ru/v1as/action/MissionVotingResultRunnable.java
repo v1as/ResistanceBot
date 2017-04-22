@@ -30,7 +30,7 @@ public class MissionVotingResultRunnable extends AbstractSessionRunnable<Game> {
                 map(MissionVote::getVote).
                 filter(Objects::nonNull).
                 filter(v -> v).count();
-        if (session.usersAmount() < votesYes * 2) {
+        if ((session.usersAmount() - 1) < votesYes * 2) {
             message(session.getChatId(), "Состав миссии утвержден.");
             task(new MissionStartRunnable(this));
         } else {
